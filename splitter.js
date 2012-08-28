@@ -1,7 +1,7 @@
 /*
  * jQuery.splitter.js - two-pane splitter window plugin
  *
- * version 1.51 (2009/01/09) 
+ * version 1.51.takaokouji.1 (2012/08/29)
  * 
  * Dual licensed under the MIT and GPL licenses: 
  *   http://www.opensource.org/licenses/mit-license.php 
@@ -13,8 +13,10 @@
  * The selected elements in the jQuery object are converted to a splitter;
  * each selected element should have two child elements, used for the panes
  * of the splitter. The plugin adds a third child element for the splitbar.
- * 
- * For more details see: http://methvin.com/splitter/
+ *
+ * The original version 1.51 was created by Dave Methvin
+ * (dave.methvin@gmail.com), http://methvin.com/splitter/.
+ * This is based it, thanks.
  *
  *
  * @example $('#MySplitter').splitter();
@@ -28,7 +30,7 @@
  * @param Object options Options for the splitter (not required)
  * @cat Plugins/Splitter
  * @return jQuery
- * @author Dave Methvin (dave.methvin@gmail.com)
+ * @author Kouji Takao (kouji@takao7.net)
  */
  ;(function($){
  
