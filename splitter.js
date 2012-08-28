@@ -189,7 +189,19 @@
 				var wh = $(window).height();
 				splitter.css("height", Math.max(wh-top-splitter._hadjust, splitter._hmin)+"px");
 				if ( !$.browser.msie ) splitter.trigger("resize");
-			}).trigger("resize");
+			});
+		}
+		else if ( opts.anchorTo ) {
+			splitter._hadjust = dimSum(splitter, "borderTopWidth", "borderBottomWidth", "marginBottom");
+			splitter._hmin = Math.max(dimSum(splitter, "minHeight"), 20);
+		    var anchor = $(opts.anchorTo);
+			$(window).bind("resize", function(){
+				var top = splitter.offset().top;
+				var wh = $(window).height();
+			        var d = dimSum($("body"), "marginBottom") + dimSum(anchor, "borderTopWidth", "borderBottomWidth");
+			    splitter.css("height", Math.max(wh - d - top - splitter._hadjust - anchor.height(), splitter._hmin)+"px");
+				if ( !$.browser.msie ) splitter.trigger("resize");
+			});
 		}
 		else if ( opts.resizeToWidth && !$.browser.msie )
 			$(window).bind("resize", function(){
