@@ -195,28 +195,28 @@
 		initPos = Math.round((splitter[0][opts.pxSplit] - splitter._PBA - bar._DA)/2);
 
 	    // Resize event propagation and splitter sizing
-	    if ( opts.anchorToWindow ) {
+	    if (opts.anchorToWindow || opts.anchorTo) {
 		// Account for margin or border on the splitter container and enforce min height
 		splitter._hadjust = dimSum(splitter, "borderTopWidth", "borderBottomWidth", "marginBottom");
 		splitter._hmin = Math.max(dimSum(splitter, "minHeight"), 20);
-		$(window).bind("resize", function(){
-		    var top = splitter.offset().top;
-		    var wh = $(window).height();
-		    splitter.css("height", Math.max(wh-top-splitter._hadjust, splitter._hmin)+"px");
-		    if ( !$.browser.msie ) splitter.trigger("resize");
-		});
-	    }
-	    else if ( opts.anchorTo ) {
-		splitter._hadjust = dimSum(splitter, "borderTopWidth", "borderBottomWidth", "marginBottom");
-		splitter._hmin = Math.max(dimSum(splitter, "minHeight"), 20);
-		var anchor = $(opts.anchorTo);
-		$(window).bind("resize", function(){
-		    var top = splitter.offset().top;
-		    var wh = $(window).height();
-		    var d = dimSum($("body"), "marginBottom") + dimSum(anchor, "borderTopWidth", "borderBottomWidth");
-		    splitter.css("height", Math.max(wh - d - top - splitter._hadjust - anchor.height(), splitter._hmin)+"px");
-		    if ( !$.browser.msie ) splitter.trigger("resize");
-		});
+		if (opts.anchorToWindow) {
+		  $(window).bind("resize", function(){
+		      var top = splitter.offset().top;
+		      var wh = $(window).height();
+		      splitter.css("height", Math.max(wh-top-splitter._hadjust, splitter._hmin)+"px");
+		      if ( !$.browser.msie ) splitter.trigger("resize");
+		  });
+		}
+		else {
+		    var anchor = $(opts.anchorTo);
+		    $(window).bind("resize", function(){
+			var top = splitter.offset().top;
+			var wh = $(window).height();
+			var d = dimSum($("body"), "marginBottom") + dimSum(anchor, "borderTopWidth", "borderBottomWidth");
+			splitter.css("height", Math.max(wh - d - top - splitter._hadjust - anchor.height(), splitter._hmin)+"px");
+			if ( !$.browser.msie ) splitter.trigger("resize");
+		    });
+		}
 	    }
 	    else if ( opts.resizeToWidth && !$.browser.msie )
 		$(window).bind("resize", function(){
