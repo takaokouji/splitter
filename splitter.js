@@ -37,37 +37,51 @@
     $.fn.splitter = function(args){
 	args = args || {};
 	return this.each(function() {
-	    var zombie;		// left-behind splitbar for outline resizes
-	    function startSplitMouse(evt) {
-		if ( opts.outline )
+	    // left-behind splitbar for outline resizes
+	    var zombie;
+	    
+	    function startSplitMouse(event) {
+		if (opts.outline) {
 		    zombie = zombie || bar.clone(false).insertAfter(A);
-		panes.css("-webkit-user-select", "none");	// Safari selects A/B text on a move
-		bar.addClass(opts.activeClass);
-		A._posSplit = A[0][opts.pxSplit] - evt[opts.eventPos];
-		$(document)
-		    .bind("mousemove", doSplitMouse)
-		    .bind("mouseup", endSplitMouse);
-	    }
-	    function doSplitMouse(evt) {
-		var newPos = A._posSplit+evt[opts.eventPos];
-		if ( opts.outline ) {
-		    newPos = Math.max(0, Math.min(newPos, splitter._DA - bar._DA));
-		    bar.css(opts.origin, newPos);
-		} else 
-		    resplit(newPos);
-	    }
-	    function endSplitMouse(evt) {
-		bar.removeClass(opts.activeClass);
-		var newPos = A._posSplit+evt[opts.eventPos];
-		if ( opts.outline ) {
-		    zombie.remove(); zombie = null;
-		    resplit(newPos);
+		    doSplitMouseFunc = doSplitMouseWithOutline;
+		    endSplitMouseFunc = endSplitMouseWithOutline;
 		}
+		else {
+		    doSplitMouseFunc = doSplitMouse;
+		    endSplitMouseFunc = endSplitMouse;
+		}
+		// Safari selects A/B text on a move
+		panes.css("-webkit-user-select", "none");
+		bar.addClass(opts.activeClass);
+		A._posSplit = A[0][opts.pxSplit] - event[opts.eventPos];
+		$(document).bind("mousemove", doSplitMouseFunc).bind("mouseup", endSplitMouseFunc);
+	    }
+	    
+	    function doSplitMouse(event) {
+		var newPos = A._posSplit + event[opts.eventPos];
+		resplit(newPos);
+	    }
+	    
+	    function endSplitMouse(event) {
+		bar.removeClass(opts.activeClass);
 		panes.css("-webkit-user-select", "text");	// let Safari select text again
 		$(document)
 		    .unbind("mousemove", doSplitMouse)
 		    .unbind("mouseup", endSplitMouse);
 	    }
+	    
+	    function doSplitMouseWithOutline(event) {
+		var newPos = Math.max(0, Math.min(A._posSplit + event[opts.eventPos], splitter._DA - bar._DA));
+		bar.css(opts.origin, newPos);
+	    }
+
+	    function endSplitMouseWithOutline(event) {
+		endSplitMouse();
+		zombie.remove();
+		zombie = null;
+		resplit(A._posSplit + event[opts.eventPos]);
+	    }
+	    
 	    function resplit(newPos) {
 		// Constrain new splitbar position to fit pane size limits
 		newPos = Math.max(A._min, splitter._DA - B._max, 
@@ -82,6 +96,7 @@
 		if ( !$.browser.msie )
 		    panes.trigger("resize");
 	    }
+	    
 	    function dimSum(jq, dims) {
 		// Opera returns -1 for missing min/max width, turn into 0
 		var sum = 0;
