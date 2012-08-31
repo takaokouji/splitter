@@ -59,7 +59,11 @@
 	    
 	    function doSplitMouse(event) {
 		var newPos = A._posSplit + event[opts.eventPos];
-		resplit(newPos);
+		try {
+		    resplit(newPos);
+		}
+		catch (e) {
+		}
 	    }
 	    
 	    function endSplitMouse(event) {
@@ -79,7 +83,11 @@
 		endSplitMouse();
 		zombie.remove();
 		zombie = null;
-		resplit(A._posSplit + event[opts.eventPos]);
+		try {
+		    resplit(A._posSplit + event[opts.eventPos]);
+		}
+		catch (e) {
+		}
 	    }
 	    
 	    function resplit(newPos) {
@@ -262,19 +270,23 @@
 	    catch (e) {
 	    }
 
-	    // Resize event handler; triggered immediately to set initial position
-	    splitter.bind("resize", function(e, size){
-		// Custom events bubble in jQuery 1.3; don't get into a Yo Dawg
-		if ( e.target != this ) return;
-		// Determine new width/height of splitter container
-		splitter._DF = splitter[0][opts.pxFixed] - splitter._PBF;
-		splitter._DA = splitter[0][opts.pxSplit] - splitter._PBA;
-		// Bail if splitter isn't visible or content isn't there yet
-		if ( splitter._DF <= 0 || splitter._DA <= 0 ) return;
-		// Re-divvy the adjustable dimension; maintain size of the preferred pane
-		resplit(!isNaN(size)? size : (!(opts.sizeRight||opts.sizeBottom)? A[0][opts.pxSplit] :
-					      splitter._DA-B[0][opts.pxSplit]-bar._DA));
-	    }).trigger("resize" , [initPos]);
+	    try {
+		// Resize event handler; triggered immediately to set initial position
+		splitter.bind("resize", function(e, size){
+		    // Custom events bubble in jQuery 1.3; don't get into a Yo Dawg
+		    if ( e.target != this ) return;
+		    // Determine new width/height of splitter container
+		    splitter._DF = splitter[0][opts.pxFixed] - splitter._PBF;
+		    splitter._DA = splitter[0][opts.pxSplit] - splitter._PBA;
+		    // Bail if splitter isn't visible or content isn't there yet
+		    if ( splitter._DF <= 0 || splitter._DA <= 0 ) return;
+		    // Re-divvy the adjustable dimension; maintain size of the preferred pane
+		    resplit(!isNaN(size)? size : (!(opts.sizeRight||opts.sizeBottom)? A[0][opts.pxSplit] :
+						  splitter._DA-B[0][opts.pxSplit]-bar._DA));
+		}).trigger("resize" , [initPos]);
+	    }
+	    catch (e) {
+	    }
 	});
     };
 
