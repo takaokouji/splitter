@@ -194,34 +194,38 @@
 	    if ( isNaN(initPos) )	// King Solomon's algorithm
 		initPos = Math.round((splitter[0][opts.pxSplit] - splitter._PBA - bar._DA)/2);
 
-	    // Resize event propagation and splitter sizing
-	    if (opts.anchorToWindow || opts.anchorTo) {
-		// Account for margin or border on the splitter container and enforce min height
-		splitter._hadjust = dimSum(splitter, "borderTopWidth", "borderBottomWidth", "marginBottom");
-		splitter._hmin = Math.max(dimSum(splitter, "minHeight"), 20);
-		if (opts.anchorToWindow) {
-		  $(window).bind("resize", function(){
-		      var top = splitter.offset().top;
-		      var wh = $(window).height();
-		      splitter.css("height", Math.max(wh-top-splitter._hadjust, splitter._hmin)+"px");
-		      if ( !$.browser.msie ) splitter.trigger("resize");
-		  });
+	    try {
+		// Resize event propagation and splitter sizing
+		if (opts.anchorToWindow || opts.anchorTo) {
+		    // Account for margin or border on the splitter container and enforce min height
+		    splitter._hadjust = dimSum(splitter, "borderTopWidth", "borderBottomWidth", "marginBottom");
+		    splitter._hmin = Math.max(dimSum(splitter, "minHeight"), 20);
+		    if (opts.anchorToWindow) {
+			$(window).bind("resize", function(){
+			    var top = splitter.offset().top;
+			    var wh = $(window).height();
+			    splitter.css("height", Math.max(wh-top-splitter._hadjust, splitter._hmin)+"px");
+			    if ( !$.browser.msie ) splitter.trigger("resize");
+			}).trigger("resize");
+		    }
+		    else {
+			var anchor = $(opts.anchorTo);
+			$(window).bind("resize", function(){
+			    var top = splitter.offset().top;
+			    var wh = $(window).height();
+			    var d = dimSum($("body"), "marginBottom") + dimSum(anchor, "borderTopWidth", "borderBottomWidth");
+			    splitter.css("height", Math.max(wh - d - top - splitter._hadjust - anchor.height(), splitter._hmin)+"px");
+			    if ( !$.browser.msie ) splitter.trigger("resize");
+			}).trigger("resize");
+		    }
 		}
-		else {
-		    var anchor = $(opts.anchorTo);
+		else if ( opts.resizeToWidth && !$.browser.msie )
 		    $(window).bind("resize", function(){
-			var top = splitter.offset().top;
-			var wh = $(window).height();
-			var d = dimSum($("body"), "marginBottom") + dimSum(anchor, "borderTopWidth", "borderBottomWidth");
-			splitter.css("height", Math.max(wh - d - top - splitter._hadjust - anchor.height(), splitter._hmin)+"px");
-			if ( !$.browser.msie ) splitter.trigger("resize");
+			splitter.trigger("resize");
 		    });
-		}
 	    }
-	    else if ( opts.resizeToWidth && !$.browser.msie )
-		$(window).bind("resize", function(){
-		    splitter.trigger("resize"); 
-		});
+	    catch (e) {
+	    }
 
 	    // Resize event handler; triggered immediately to set initial position
 	    splitter.bind("resize", function(e, size){
