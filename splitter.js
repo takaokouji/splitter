@@ -92,7 +92,7 @@
 	    
 	    function resplit(newPos) {
 		// Constrain new splitbar position to fit pane size limits
-		newPos = Math.max(A._min, splitter._DA - B._max, 
+		newPos = Math.max(A._min, splitter._DA - bar._DA - B._max,
 				  Math.min(newPos, A._max, splitter._DA - bar._DA - B._min));
 
 		// Resize/position the two panes
@@ -312,7 +312,12 @@
 			    newPos = splitter._DA - B[0][opts.pxSplit] - bar._DA;
 			}
 			else {
-			    newPos = B[0][opts.pxSplit];
+			    if (prevDA < splitter._DA) {
+				newPos = splitter._DA - bar._DA - B[0][opts.pxSplit];
+			    }
+			    else {
+				newPos = A[0][opts.pxSplit];
+			    }
 			}
 		    }
 		    resplit(newPos);
