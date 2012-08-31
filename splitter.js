@@ -289,10 +289,22 @@
 		    splitter._DF = splitter[0][opts.pxFixed] - splitter._PBF;
 		    splitter._DA = splitter[0][opts.pxSplit] - splitter._PBA;
 		    // Bail if splitter isn't visible or content isn't there yet
-		    if ( splitter._DF <= 0 || splitter._DA <= 0 ) return;
+		    if (splitter._DF <= 0 || splitter._DA <= 0) {
+			return;
+		    }
 		    // Re-divvy the adjustable dimension; maintain size of the preferred pane
-		    resplit(!isNaN(size)? size : (!(opts.sizeRight||opts.sizeBottom)? A[0][opts.pxSplit] :
-						  splitter._DA-B[0][opts.pxSplit]-bar._DA));
+		    if (isNaN(size)) {
+			if (opts.sizeRight || opts.sizeBottom) {
+			    var newPos = splitter._DA - B[0][opts.pxSplit] - bar._DA;
+			}
+			else {
+			    var newPos = A[0][opts.pxSplit];
+			}
+		    }
+		    else {
+			var newPos = size;
+		    }
+		    resplit(newPos);
 		}).trigger("resize" , [initPos]);
 	    }
 	    catch (e) {
