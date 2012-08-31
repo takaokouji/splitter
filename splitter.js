@@ -296,10 +296,13 @@
 			return;
 		    }
 		    // Determine new width/height of splitter container
+		    var prevDF = splitter._DF;
+		    var prevDA = splitter._DA;
 		    splitter._DF = splitter[0][opts.pxFixed] - splitter._PBF;
 		    splitter._DA = splitter[0][opts.pxSplit] - splitter._PBA;
 		    // Bail if splitter isn't visible or content isn't there yet
-		    if (splitter._DF <= 0 || splitter._DA <= 0) {
+		    if (splitter._DF <= 0 || splitter._DA <= 0 ||
+			splitter._DA == prevDA && splitter._DF == prevDF) {
 			return;
 		    }
 		    // Re-divvy the adjustable dimension; maintain size of the preferred pane
@@ -309,7 +312,7 @@
 			    newPos = splitter._DA - B[0][opts.pxSplit] - bar._DA;
 			}
 			else {
-			    newPos = A[0][opts.pxSplit];
+			    newPos = B[0][opts.pxSplit];
 			}
 		    }
 		    resplit(newPos);
