@@ -93,39 +93,63 @@
 		B.css(opts.origin, newPos+bar._DA)
 		    .css(opts.split, splitter._DA-bar._DA-newPos).css(opts.fixed,  splitter._DF);
 		// IE fires resize for us; all others pay cash
-		if ( !$.browser.msie )
+		if (!$.browser.msie) {
 		    panes.trigger("resize");
+		}
 	    }
 	    
 	    function dimSum(jq, dims) {
 		// Opera returns -1 for missing min/max width, turn into 0
 		var sum = 0;
-		for ( var i=1; i < arguments.length; i++ )
+		for (var i = 1; i < arguments.length; i++) {
 		    sum += Math.max(parseInt(jq.css(arguments[i])) || 0, 0);
+		}
 		return sum;
 	    }
 	    
 	    // Determine settings based on incoming opts, element classes, and defaults
-	    var vh = (args.splitHorizontal? 'h' : args.splitVertical? 'v' : args.type) || 'v';
+	    var vh = (args.splitHorizontal ? 'h' : args.splitVertical ? 'v' : args.type) || 'v';
 	    var opts = $.extend({
 		activeClass: 'active',	// class name for active splitter
 		pxPerKey: 8,			// splitter px moved per keypress
 		tabIndex: 0,			// tab order indicator
 		accessKey: ''			// accessKey for splitbar
-	    },{
+	    }, {
 		v: {					// Vertical splitters:
-		    keyLeft: 39, keyRight: 37, cursor: "e-resize",
-		    splitbarClass: "vsplitbar", outlineClass: "voutline",
-		    type: 'v', eventPos: "pageX", origin: "left",
-		    split: "width",  pxSplit: "offsetWidth",  side1: "Left", side2: "Right",
-		    fixed: "height", pxFixed: "offsetHeight", side3: "Top",  side4: "Bottom"
+		    keyLeft: 39,
+		    keyRight: 37,
+		    cursor: "e-resize",
+		    splitbarClass: "vsplitbar",
+		    outlineClass: "voutline",
+		    type: 'v',
+		    eventPos: "pageX",
+		    origin: "left",
+		    split: "width",
+		    pxSplit: "offsetWidth",
+		    side1: "Left",
+		    side2: "Right",
+		    fixed: "height",
+		    pxFixed: "offsetHeight",
+		    side3: "Top",
+		    side4: "Bottom"
 		},
 		h: {					// Horizontal splitters:
-		    keyTop: 40, keyBottom: 38,  cursor: "n-resize",
-		    splitbarClass: "hsplitbar", outlineClass: "houtline",
-		    type: 'h', eventPos: "pageY", origin: "top",
-		    split: "height", pxSplit: "offsetHeight", side1: "Top",  side2: "Bottom",
-		    fixed: "width",  pxFixed: "offsetWidth",  side3: "Left", side4: "Right"
+		    keyTop: 40,
+		    keyBottom: 38,
+		    cursor: "n-resize",
+		    splitbarClass: "hsplitbar",
+		    outlineClass: "houtline",
+		    type: 'h',
+		    eventPos: "pageY",
+		    origin: "top",
+		    split: "height",
+		    pxSplit: "offsetHeight",
+		    side1: "Top",
+		    side2: "Bottom",
+		    fixed: "width",
+		    pxFixed: "offsetWidth",
+		    side3: "Left",
+		    side4: "Right"
 		}
 	    }[vh], args);
 
@@ -141,7 +165,9 @@
 
 	    // Focuser element, provides keyboard support; title is shown by Opera accessKeys
 	    var focuser = $('<a href="javascript:void(0)"></a>')
-		.attr({accessKey: opts.accessKey, tabIndex: opts.tabIndex, title: opts.splitbarClass})
+		.attr({accessKey: opts.accessKey,
+		       tabIndex: opts.tabIndex,
+		       title: opts.splitbarClass})
 		.bind($.browser.opera?"click":"focus", function(){ this.focus(); bar.addClass(opts.activeClass) })
 		.bind("keydown", function(e){
 		    var key = e.which || e.keyCode;
@@ -155,44 +181,53 @@
 	    var bar = $(panes[2] || '<div></div>')
 		.insertAfter(A).css("z-index", "100").append(focuser)
 		.attr({"class": opts.splitbarClass, unselectable: "on"})
-		.css({position: "absolute",	"user-select": "none", "-webkit-user-select": "none",
-		      "-khtml-user-select": "none", "-moz-user-select": "none"})
+		.css({position: "absolute",
+		      "user-select": "none",
+		      "-webkit-user-select": "none",
+		      "-khtml-user-select": "none",
+		      "-moz-user-select": "none"})
 		.bind("mousedown", startSplitMouse);
 	    // Use our cursor unless the style specifies a non-default cursor
-	    if ( /^(auto|default|)$/.test(bar.css("cursor")) )
+	    if (/^(auto|default|)$/.test(bar.css("cursor"))) {
 		bar.css("cursor", opts.cursor);
+	    }
 
 	    // Cache several dimensions for speed, rather than re-querying constantly
 	    bar._DA = bar[0][opts.pxSplit];
-	    splitter._PBF = $.boxModel? dimSum(splitter, "border"+opts.side3+"Width", "border"+opts.side4+"Width") : 0;
-	    splitter._PBA = $.boxModel? dimSum(splitter, "border"+opts.side1+"Width", "border"+opts.side2+"Width") : 0;
+	    splitter._PBF = $.boxModel ? dimSum(splitter, "border" + opts.side3 + "Width", "border" + opts.side4 + "Width") : 0;
+	    splitter._PBA = $.boxModel ? dimSum(splitter, "border" + opts.side1 + "Width", "border" + opts.side2 + "Width") : 0;
 	    A._pane = opts.side1;
 	    B._pane = opts.side2;
 	    $.each([A,B], function(){
-		this._min = opts["min"+this._pane] || dimSum(this, "min-"+opts.split);
-		this._max = opts["max"+this._pane] || dimSum(this, "max-"+opts.split) || 9999;
-		this._init = opts["size"+this._pane]===true ?
-		    parseInt($.curCSS(this[0],opts.split)) : opts["size"+this._pane];
+		this._min = opts["min" + this._pane] || dimSum(this, "min-" + opts.split);
+		this._max = opts["max" + this._pane] || dimSum(this, "max-" + opts.split) || 9999;
+		this._init = opts["size" + this._pane] === true ? parseInt($.curCSS(this[0], opts.split)) : opts["size" + this._pane];
 	    });
 	    
 	    // Determine initial position, get from cookie if specified
 	    var initPos = A._init;
-	    if ( !isNaN(B._init) )	// recalc initial B size as an offset from the top or left side
+	    if (!isNaN(B._init)) {
+		// recalc initial B size as an offset from the top or left side
 		initPos = splitter[0][opts.pxSplit] - splitter._PBA - B._init - bar._DA;
-	    if ( opts.cookie ) {
-		if ( !$.cookie )
+	    }
+	    if (opts.cookie) {
+		if (!$.cookie) {
 		    alert('jQuery.splitter(): jQuery cookie plugin required');
+		}
 		var ckpos = parseInt($.cookie(opts.cookie));
-		if ( !isNaN(ckpos) )
+		if (!isNaN(ckpos)) {
 		    initPos = ckpos;
+		}
 		$(window).bind("unload", function(){
 		    var state = String(bar.css(opts.origin));	// current location of splitbar
 		    $.cookie(opts.cookie, state, {expires: opts.cookieExpires || 365, 
 						  path: opts.cookiePath || document.location.pathname});
 		});
 	    }
-	    if ( isNaN(initPos) )	// King Solomon's algorithm
+	    if (isNaN(initPos)) {
+		// King Solomon's algorithm
 		initPos = Math.round((splitter[0][opts.pxSplit] - splitter._PBA - bar._DA)/2);
+	    }
 
 	    try {
 		// Resize event propagation and splitter sizing
