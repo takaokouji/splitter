@@ -94,12 +94,20 @@
 		// Constrain new splitbar position to fit pane size limits
 		newPos = Math.max(A._min, splitter._DA - B._max, 
 				  Math.min(newPos, A._max, splitter._DA - bar._DA - B._min));
+
 		// Resize/position the two panes
-		bar._DA = bar[0][opts.pxSplit];		// bar size may change during dock
+		bar._DA = bar[0][opts.pxSplit];
+		
+		// bar size may change during dock
 		bar.css(opts.origin, newPos).css(opts.fixed, splitter._DF);
-		A.css(opts.origin, 0).css(opts.split, newPos).css(opts.fixed,  splitter._DF);
-		B.css(opts.origin, newPos+bar._DA)
-		    .css(opts.split, splitter._DA-bar._DA-newPos).css(opts.fixed,  splitter._DF);
+		
+		A.css(opts.origin, 0)
+		    .css(opts.split, newPos)
+		    .css(opts.fixed,  splitter._DF);
+		B.css(opts.origin, newPos + bar._DA)
+		    .css(opts.split, splitter._DA - bar._DA - newPos)
+		    .css(opts.fixed,  splitter._DF);
+		
 		// IE fires resize for us; all others pay cash
 		if (!$.browser.msie) {
 		    panes.trigger("resize");
@@ -284,7 +292,9 @@
 		// Resize event handler; triggered immediately to set initial position
 		splitter.bind("resize", function(e, size){
 		    // Custom events bubble in jQuery 1.3; don't get into a Yo Dawg
-		    if ( e.target != this ) return;
+		    if (e.target != this) {
+			return;
+		    }
 		    // Determine new width/height of splitter container
 		    splitter._DF = splitter[0][opts.pxFixed] - splitter._PBF;
 		    splitter._DA = splitter[0][opts.pxSplit] - splitter._PBA;
@@ -293,16 +303,14 @@
 			return;
 		    }
 		    // Re-divvy the adjustable dimension; maintain size of the preferred pane
-		    if (isNaN(size)) {
+		    var newPos = size;
+		    if (isNaN(newPos)) {
 			if (opts.sizeRight || opts.sizeBottom) {
-			    var newPos = splitter._DA - B[0][opts.pxSplit] - bar._DA;
+			    newPos = splitter._DA - B[0][opts.pxSplit] - bar._DA;
 			}
 			else {
-			    var newPos = A[0][opts.pxSplit];
+			    newPos = A[0][opts.pxSplit];
 			}
-		    }
-		    else {
-			var newPos = size;
 		    }
 		    resplit(newPos);
 		}).trigger("resize" , [initPos]);
