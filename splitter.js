@@ -176,14 +176,20 @@
 		.attr({accessKey: opts.accessKey,
 		       tabIndex: opts.tabIndex,
 		       title: opts.splitbarClass})
-		.bind($.browser.opera?"click":"focus", function(){ this.focus(); bar.addClass(opts.activeClass) })
+		.bind($.browser.opera?"click":"focus", function(){
+		    this.focus();
+		    bar.addClass(opts.activeClass);
+		})
 		.bind("keydown", function(e){
 		    var key = e.which || e.keyCode;
-		    var dir = key==opts["key"+opts.side1]? 1 : key==opts["key"+opts.side2]? -1 : 0;
-		    if ( dir )
-			resplit(A[0][opts.pxSplit]+dir*opts.pxPerKey, false);
+		    var dir = key==opts["key" + opts.side1] ? 1 : key==opts["key" + opts.side2] ? -1 : 0;
+		    if (dir) {
+			resplit(A[0][opts.pxSplit] + dir * opts.pxPerKey, false);
+		    }
 		})
-		.bind("blur", function(){ bar.removeClass(opts.activeClass) });
+		.bind("blur", function(){
+		    bar.removeClass(opts.activeClass)
+		});
 	    
 	    // Splitbar element, can be already in the doc or we create one
 	    var bar = $(panes[2] || '<div></div>')
@@ -202,8 +208,8 @@
 
 	    // Cache several dimensions for speed, rather than re-querying constantly
 	    bar._DA = bar[0][opts.pxSplit];
-	    splitter._PBF = $.boxModel ? dimSum(splitter, "border" + opts.side3 + "Width", "border" + opts.side4 + "Width") : 0;
-	    splitter._PBA = $.boxModel ? dimSum(splitter, "border" + opts.side1 + "Width", "border" + opts.side2 + "Width") : 0;
+	    splitter._PBF = $.support.boxModel ? dimSum(splitter, "border" + opts.side3 + "Width", "border" + opts.side4 + "Width") : 0;
+	    splitter._PBA = $.support.boxModel ? dimSum(splitter, "border" + opts.side1 + "Width", "border" + opts.side2 + "Width") : 0;
 	    A._pane = opts.side1;
 	    B._pane = opts.side2;
 	    $.each([A,B], function(){
@@ -248,7 +254,9 @@
 			    var top = splitter.offset().top;
 			    var wh = $(window).height();
 			    splitter.css("height", Math.max(wh-top-splitter._hadjust, splitter._hmin)+"px");
-			    if ( !$.browser.msie ) splitter.trigger("resize");
+			    if (!$.browser.msie) {
+				splitter.trigger("resize");
+			    }
 			}).trigger("resize");
 		    }
 		    else {
@@ -258,7 +266,9 @@
 			    var wh = $(window).height();
 			    var d = dimSum($("body"), "marginBottom") + dimSum(anchor, "borderTopWidth", "borderBottomWidth");
 			    splitter.css("height", Math.max(wh - d - top - splitter._hadjust - anchor.height(), splitter._hmin)+"px");
-			    if ( !$.browser.msie ) splitter.trigger("resize");
+			    if (!$.browser.msie) {
+				splitter.trigger("resize");
+			    }
 			}).trigger("resize");
 		    }
 		}
