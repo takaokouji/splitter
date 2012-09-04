@@ -59,11 +59,7 @@
 	    
 	    function doSplitMouse(event) {
 		var newPos = A._posSplit + event[opts.eventPos];
-		try {
-		    resplit(newPos);
-		}
-		catch (e) {
-		}
+		resplit(newPos);
 	    }
 	    
 	    function endSplitMouse(event) {
@@ -83,13 +79,9 @@
 		endSplitMouse();
 		zombie.remove();
 		zombie = null;
-		try {
-		    resplit(A._posSplit + event[opts.eventPos]);
-		}
-		catch (e) {
-		}
+		resplit(A._posSplit + event[opts.eventPos]);
 	    }
-	    
+
 	    function resplit(newPos) {
 		// Constrain new splitbar position to fit pane size limits
 		newPos = Math.max(A._min, splitter._DA - bar._DA - B._max,
@@ -110,8 +102,37 @@
 		
 		// IE fires resize for us; all others pay cash
 		if (!$.browser.msie) {
-		    panes.trigger("resize");
+		    updateSplitterSize();
 		}
+	    }
+	    
+	    function updateSplitterSize(size) {
+		// Determine new width/height of splitter container
+		var prevDF = splitter._DF;
+		var prevDA = splitter._DA;
+		splitter._DF = splitter[0][opts.pxFixed] - splitter._PBF;
+		splitter._DA = splitter[0][opts.pxSplit] - splitter._PBA;
+		// Bail if splitter isn't visible or content isn't there yet
+		if (splitter._DF <= 0 || splitter._DA <= 0 ||
+		    splitter._DA == prevDA && splitter._DF == prevDF) {
+		    return;
+		}
+		// Re-divvy the adjustable dimension; maintain size of the preferred pane
+		var newPos = size;
+		if (isNaN(newPos)) {
+		    if (opts.sizeRight || opts.sizeBottom) {
+			newPos = splitter._DA - B[0][opts.pxSplit] - bar._DA;
+		    }
+		    else {
+			if (prevDA < splitter._DA) {
+			    newPos = splitter._DA - bar._DA - B[0][opts.pxSplit];
+			}
+			else {
+			    newPos = A[0][opts.pxSplit];
+			}
+		    }
+		}
+		resplit(newPos);
 	    }
 	    
 	    function dimSum(jq, dims) {
@@ -251,80 +272,49 @@
 		initPos = Math.round((splitter[0][opts.pxSplit] - splitter._PBA - bar._DA)/2);
 	    }
 
-	    try {
-		// Resize event propagation and splitter sizing
-		if (opts.anchorToWindow || opts.anchorTo) {
-		    // Account for margin or border on the splitter container and enforce min height
-		    splitter._hadjust = dimSum(splitter, "borderTopWidth", "borderBottomWidth", "marginBottom");
-		    splitter._hmin = Math.max(dimSum(splitter, "minHeight"), 20);
-		    if (opts.anchorToWindow) {
-			$(window).bind("resize", function(){
-			    var top = splitter.offset().top;
-			    var wh = $(window).height();
-			    splitter.css("height", Math.max(wh-top-splitter._hadjust, splitter._hmin)+"px");
-			    if (!$.browser.msie) {
-				splitter.trigger("resize");
-			    }
-			}).trigger("resize");
-		    }
-		    else {
-			var anchor = $(opts.anchorTo);
-			$(window).bind("resize", function(){
-			    var top = splitter.offset().top;
-			    var wh = $(window).height();
-			    var d = dimSum($("body"), "marginBottom") + dimSum(anchor, "borderTopWidth", "borderBottomWidth");
-			    splitter.css("height", Math.max(wh - d - top - splitter._hadjust - anchor.height(), splitter._hmin)+"px");
-			    if (!$.browser.msie) {
-				splitter.trigger("resize");
-			    }
-			}).trigger("resize");
-		    }
-		}
-		else if ( opts.resizeToWidth && !$.browser.msie )
+	    // Resize event propagation and splitter sizing
+	    if (opts.anchorToWindow || opts.anchorTo) {
+		// Account for margin or border on the splitter container and enforce min height
+		splitter._hadjust = dimSum(splitter, "borderTopWidth", "borderBottomWidth", "marginBottom");
+		splitter._hmin = Math.max(dimSum(splitter, "minHeight"), 20);
+		if (opts.anchorToWindow) {
 		    $(window).bind("resize", function(){
-			splitter.trigger("resize");
+			var top = splitter.offset().top;
+			var wh = $(window).height();
+			splitter.css("height", Math.max(wh-top-splitter._hadjust, splitter._hmin)+"px");
+			if (!$.browser.msie) {
+			    updateSplitterSize();
+			}
 		    });
-	    }
-	    catch (e) {
-	    }
-
-	    try {
-		// Resize event handler; triggered immediately to set initial position
-		splitter.bind("resize", function(e, size){
-		    // Custom events bubble in jQuery 1.3; don't get into a Yo Dawg
-		    if (e.target != this) {
-			return;
-		    }
-		    // Determine new width/height of splitter container
-		    var prevDF = splitter._DF;
-		    var prevDA = splitter._DA;
-		    splitter._DF = splitter[0][opts.pxFixed] - splitter._PBF;
-		    splitter._DA = splitter[0][opts.pxSplit] - splitter._PBA;
-		    // Bail if splitter isn't visible or content isn't there yet
-		    if (splitter._DF <= 0 || splitter._DA <= 0 ||
-			splitter._DA == prevDA && splitter._DF == prevDF) {
-			return;
-		    }
-		    // Re-divvy the adjustable dimension; maintain size of the preferred pane
-		    var newPos = size;
-		    if (isNaN(newPos)) {
-			if (opts.sizeRight || opts.sizeBottom) {
-			    newPos = splitter._DA - B[0][opts.pxSplit] - bar._DA;
+		}
+		else {
+		    var anchor = $(opts.anchorTo);
+		    $(window).bind("resize", function(){
+			var top = splitter.offset().top;
+			var wh = $(window).height();
+			var d = dimSum($("body"), "marginBottom") + dimSum(anchor, "borderTopWidth", "borderBottomWidth");
+			splitter.css("height", Math.max(wh - d - top - splitter._hadjust - anchor.height(), splitter._hmin) + "px");
+			if (!$.browser.msie) {
+			    updateSplitterSize();
 			}
-			else {
-			    if (prevDA < splitter._DA) {
-				newPos = splitter._DA - bar._DA - B[0][opts.pxSplit];
-			    }
-			    else {
-				newPos = A[0][opts.pxSplit];
-			    }
-			}
-		    }
-		    resplit(newPos);
-		}).trigger("resize" , [initPos]);
+		    });
+		}
 	    }
-	    catch (e) {
+	    else if (opts.resizeToWidth && !$.browser.msie) {
+		$(window).bind("resize", function(){
+		    updateSplitterSize();
+		});
 	    }
+	    
+	    // Resize event handler; triggered immediately to set initial position
+	    splitter.bind("resize", function(e, size){
+		// Custom events bubble in jQuery 1.3; don't get into a Yo Dawg
+		if (e.target != this) {
+		    return;
+		}
+		updateSplitterSize(size);
+	    });
+	    updateSplitterSize(initPos);
 	});
     };
 
