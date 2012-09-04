@@ -313,8 +313,7 @@
 		    return;
 		}
 		updateSplitterSize(size);
-	    });
-	    updateSplitterSize(initPos);
+	    }).trigger("resize", [initPos]);
 	});
     };
 
